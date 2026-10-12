@@ -5,6 +5,12 @@ across the whole stack, plus real window animations.
 
 ![theme](https://img.shields.io/badge/theme-Material%20Teal-00bfa5)
 
+## Screenshots
+
+![Desktop](assets/desktop.png)
+
+![Terminals — transparency, blur & focused border](assets/terminals.png)
+
 ## What's inside
 
 | Component | What it is | Path |
