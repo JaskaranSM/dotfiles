@@ -60,6 +60,10 @@ feh --bg-scale ~/Pictures/long_way_from_home.png
 i3-msg reload
 ```
 
+> Full step-by-step deployment on a **bare distro with no desktop environment**
+> is in **[docs/DEPLOY.md](docs/DEPLOY.md)**. It was validated end-to-end on an
+> Ubuntu 24.04 cloud image (minimal, no DE) in a KVM VM.
+
 ## Window animations
 
 The config in `.config/picom/picom.conf` uses the **`pijulius/picom`** fork for
