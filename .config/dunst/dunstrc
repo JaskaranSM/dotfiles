@@ -1,0 +1,54 @@
+[global]
+    # --- Layout & Position ---
+    monitor = 0
+    follow = mouse
+    width = 350
+    origin = top-right
+    offset = 20x45
+    scale = 0
+    notification_limit = 5
+
+    # --- Progress Bar ---
+    progress_bar = true
+    progress_bar_height = 4
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+
+    # --- UI Aesthetics ---
+    font = JetBrainsMono Nerd Font 10
+    line_height = 4
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    
+    # --- Borders & Padding ---
+    frame_width = 2
+    frame_color = #00bfa5
+    separator_color = frame
+    corner_radius = 12
+    padding = 14
+    horizontal_padding = 14
+    highlight = "#00bfa5"
+
+[urgency_low]
+    background = "#1e1e1e"
+    foreground = "#e8eaed"
+    frame_color = "#00bfa5"
+    timeout = 5
+
+[urgency_normal]
+    background = "#1e1e1e"
+    foreground = "#e8eaed"
+    frame_color = "#00bfa5"
+    timeout = 8
+
+[urgency_critical]
+    background = "#1e1e1e"
+    foreground = "#ef5350"
+    frame_color = "#ef5350"
+    timeout = 0

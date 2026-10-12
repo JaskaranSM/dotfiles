@@ -1,0 +1,159 @@
+# Main Modifier Key (Mod4 = Windows/Super key)
+set $mod Mod4
+
+# User vars
+set $term kitty
+
+# Set System Fonts
+font pango:DejaVu Sans Mono 12
+
+# Use pactl for system volume control 
+# bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+# bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+# bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# i3 window split, note for me: i m using mod+v for clipboard history
+bindsym $mod+b split v
+bindsym $mod+n split h
+
+# Volume control using Dunst OSD
+bindsym XF86AudioRaiseVolume exec --no-startup-id ~/.config/i3/volume.sh up
+bindsym XF86AudioLowerVolume exec --no-startup-id ~/.config/i3/volume.sh down
+bindsym XF86AudioMute        exec --no-startup-id ~/.config/i3/volume.sh mute
+
+bindsym $mod+v exec --no-startup-id rofi -modi "clipboard:greenclip print" -show clipboard -run-command "{cmd}"
+
+# Core Navigation Bindings
+bindsym $mod+Return exec --no-startup-id $term
+bindsym $mod+q kill
+bindsym $mod+d exec --no-startup-id rofi -show drun
+
+# Focus Windows (Arrow keys)
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Focus Windows (Vim keys)
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# Move Windows (Vim keys)
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# Layout Modifiers
+bindsym $mod+f fullscreen toggle
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+bindsym $mod+Shift+space floating toggle
+
+# Take area screenshot, save it, pipe it into the clipboard, and notify
+bindsym Print exec --no-startup-id ksnip -r -s && xclip -selection clipboard -t image/png -silent $(ls -t ~/Pictures/* | head -n 1) && dunstify -a "System" -u low -r 9995 "Screenshot" "Area copied and saved to Pictures!"
+
+# Take full screen screenshot, save it, pipe it into the clipboard, and notify
+bindsym Shift+Print exec --no-startup-id ksnip -f -s && xclip -selection clipboard -t image/png -silent $(ls -t ~/Pictures/* | head -n 1) && dunstify -a "System" -u low -r 9995 "Screenshot" "Full screen copied and saved to Pictures!"
+
+# Launch Nemo file manager
+bindsym $mod+Shift+f exec nemo
+
+# Equalize all windows in the current split evenly (50/50, 33/33/33, etc.)
+bindsym $mod+Control+space layout toggle split
+
+# Workspaces
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+
+# Resize window with Control + Arrows (No mode needed)
+bindsym $mod+Control+Left  resize shrink width 10 px or 10 ppt
+bindsym $mod+Control+Down  resize grow height 10 px or 10 ppt
+bindsym $mod+Control+Up    resize shrink height 10 px or 10 ppt
+bindsym $mod+Control+Right resize grow width 10 px or 10 ppt
+
+# Laptop Screen Brightness Controls using Dunst OSD
+bindsym XF86MonBrightnessUp   exec --no-startup-id ~/.config/i3/brightness.sh up
+bindsym XF86MonBrightnessDown exec --no-startup-id ~/.config/i3/brightness.sh down
+
+# Session Control
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit'"
+
+# Send active window to the next empty workspace (Strictly restricted within 1-4)
+bindsym $mod+Shift+n exec --no-startup-id ~/.config/i3/move_to_next_free.sh
+
+# --- Visual Tweak & Gaps Stack ---
+default_border pixel 2
+default_floating_border pixel 2
+gaps inner 10
+gaps outer 5
+smart_gaps on
+
+# Window Border Colors (Material Teal)
+# class                 border  backgr. text    indicator child_border
+client.focused          #00bfa5 #1e1e1e #e8eaed #00bfa5   #00bfa5
+client.focused_inactive #2e2e2e #1e1e1e #9aa0a6 #2e2e2e   #2e2e2e
+client.unfocused        #1e1e1e #1e1e1e #5f6368 #1e1e1e   #1e1e1e
+client.urgent           #ef5350 #1e1e1e #e8eaed #ef5350   #ef5350
+
+# --- Clean Autostart Sequence ---
+
+# Start the notification daemon
+exec_always --no-startup-id dunst
+
+exec_always --no-startup-id feh --bg-scale ~/Pictures/long_way_from_home.png
+exec_always --no-startup-id picom -b
+exec_always --no-startup-id ~/.config/polybar/launch.sh
+exec_always --no-startup-id xrdb -merge ~/.Xresources
+exec_always --no-startup-id xinput set-prop 10 "libinput Natural Scrolling Enabled" 1
+exec_always --no-startup-id xinput set-prop 9 "libinput Natural Scrolling Enabled" 1
+
+# Start the clipboard history manager daemon
+exec_always --no-startup-id greenclip daemon
+
+# Exact match floating rules for Hubstaff Linux Client
+for_window [class="netsoft-com.netsoft.hubstaff"] floating enable
+for_window [class="netsoft-com.netsoft.hubstaff"] resize set 380 px 600 px
+for_window [class="netsoft-com.netsoft.hubstaff"] move position center
+
+# Toggle a temporary tray on demand for Hubstaff
+# Corrected trayer toggle for i3wm + polybar
+bindsym $mod+t exec --no-startup-id trayer --edge top --align right --widthtype request --height 26 --transparent true --alpha 0
+bindsym $mod+Shift+t exec --no-startup-id pkill trayer
+exec --no-startup-id xinput set-prop "ELAN1301:00 04F3:30C6 Touchpad" "libinput Natural Scrolling Enabled" 1
+
+bindsym $mod+Shift+w exec networkmanager_dmenu
+
+# Lock screen with Super + Ctrl + L
+bindsym $mod+Control+l exec --no-startup-id i3lock -c 1e1e2e

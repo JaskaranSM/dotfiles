@@ -1,0 +1,98 @@
+configuration {
+    modi:                       "drun,run";
+    show-icons:                 true;
+    icon-theme:                 "Papirus";
+    display-drun:               "  Apps";
+    display-run:                "  Run";
+    drun-display-format:        "{name}";
+    window-format:              "{w} · {c} · {t}";
+}
+
+@theme "/dev/null"
+
+* {
+    bg:          #1e1e1e;
+    bg-alt:      #2e2e2e;
+    fg:          #e8eaed;
+    primary:     #00bfa5;
+    urgent:      #ef5350;
+    active:      #66bb6a;
+
+    background-color:   transparent;
+    text-color:         @fg;
+}
+
+window {
+    transparency:        "real";
+    background-color:    rgba(30, 30, 30, 0.88);
+    text-color:          @fg;
+    border:              2px;
+    border-color:        @primary;
+    border-radius:       12px;
+    width:               600px;
+    location:            center;
+    anchor:              center;
+    x-offset:            0;
+    y-offset:            0;
+}
+
+mainbox {
+    background-color:    transparent;
+    spacing:             10px;
+    padding:             20px;
+    children:            [ inputbar, listview ];
+}
+
+inputbar {
+    background-color:    rgba(46, 46, 46, 0.85);
+    text-color:          @fg;
+    expand:              false;
+    border-radius:       8px;
+    padding:             12px 16px;
+    children:            [ entry ];
+}
+
+entry {
+    background-color:    transparent;
+    text-color:          @fg;
+    placeholder:         "Search applications...";
+    placeholder-color:   #5f6368;
+}
+
+listview {
+    background-color:    transparent;
+    columns:             1;
+    lines:               8;
+    cycle:               true;
+    dynamic:             true;
+    layout:              vertical;
+    spacing:             6px;
+}
+
+element {
+    background-color:    transparent;
+    text-color:          @fg;
+    orientation:         horizontal;
+    border-radius:       6px;
+    padding:             8px 12px;
+}
+
+element-icon {
+    background-color:    transparent;
+    text-color:          inherit;
+    size:                24px;
+    cursor:              inherit;
+}
+
+element-text {
+    background-color:    transparent;
+    text-color:          inherit;
+    expand:              true;
+    horizontal-align:    0.0;
+    vertical-align:      0.5;
+}
+
+element selected {
+    background-color:    @primary;
+    text-color:          #0b1f1b;
+}

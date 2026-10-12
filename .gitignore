@@ -1,0 +1,10 @@
+# backups / OS junk
+*.bak
+*.orig
+*~
+.DS_Store
+
+# polybar caches / non-config files
+.config/polybar/LOCAL_APPDATA_FONTCONFIG_CACHE/
+.config/polybar/settings.json
+.config/polybar/*.db
