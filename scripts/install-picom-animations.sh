@@ -32,10 +32,16 @@ ninja -C build
 echo "==> Installing"
 ninja -C build install
 
+# Make sure login shells (and i3) prefer ~/.local/bin so `picom` finds the fork
+if ! grep -qs 'HOME/.local/bin' "$HOME/.profile" 2>/dev/null; then
+  printf '\n# added by dotfiles: prefer ~/.local/bin (picom animations fork)\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.profile"
+  echo "==> Added ~/.local/bin to ~/.profile (log out/in for i3 to pick it up)"
+fi
+
 echo
-echo "==> Done. Installed binary:"
-command -v picom
-picom --version | head -1
+echo "==> Done. Fork binary: $PREFIX/bin/picom"
+"$PREFIX/bin/picom" --version | head -1
+echo "Resolved 'picom' in this shell: $(command -v picom) -- $(picom --version 2>/dev/null | head -1)"
 
 cat <<'EOF'
 
