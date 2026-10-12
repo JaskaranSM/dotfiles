@@ -47,7 +47,18 @@ Useful flags:
 ```bash
 ./install.sh --no-packages              # only symlink configs (packages already installed)
 ./install.sh --with-picom-animations    # also build the picom animations fork
+./install.sh --laptop                   # + laptop extras (firmware, TLP, bluetooth, audio, GPU)
+./install.sh --laptop --nvidia          #   ...and install the NVIDIA driver
+./install.sh --laptop --no-nvidia       #   ...but never prompt for NVIDIA
 ```
+
+### Laptop install
+
+The base install is desktop-manager-free (boots to a console; start i3 with
+`startx`). For a laptop, add the `--laptop` profile which pulls in
+`linux-firmware`, Bluetooth (`bluez`/`blueman`), power management
+(`tlp`/`thermald`/`powertop`), audio (`pipewire`) and GPU/touchpad X drivers.
+It never prompts for NVIDIA unless you pass `--nvidia`.
 
 The installer is distro-aware (apt / pacman / dnf / zypper) and **symlinks**
 the configs into `$HOME`, backing up anything it replaces to

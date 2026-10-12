@@ -3,9 +3,12 @@
 # Material Teal i3 rice — dotfiles installer
 # Symlinks this repo's configs into $HOME and (optionally) installs packages.
 #
-#   ./install.sh                     # symlink configs + install packages
-#   ./install.sh --no-packages       # only symlink configs
-#   ./install.sh --with-picom-animations   # also build the picom animations fork
+#   ./install.sh                          # symlink configs + install packages
+#   ./install.sh --no-packages            # only symlink configs
+#   ./install.sh --with-picom-animations  # also build the picom animations fork
+#   ./install.sh --laptop                 # + laptop extras (firmware, TLP, BT, audio, GPU)
+#   ./install.sh --laptop --nvidia        #   ...and auto-install the NVIDIA driver
+#   ./install.sh --laptop --no-nvidia     #   ...but never prompt for NVIDIA
 #
 set -euo pipefail
 
@@ -16,12 +19,17 @@ WALLPAPER_DST="$HOME/Pictures/long_way_from_home.png"
 
 INSTALL_PKGS=1
 BUILD_PICOM_ANIMATIONS=0
+LAPTOP=0
+NVIDIA=""   # "", "yes", "no"
+
 for arg in "$@"; do
   case "$arg" in
     --no-packages)           INSTALL_PKGS=0 ;;
     --with-picom-animations) BUILD_PICOM_ANIMATIONS=1 ;;
-    -h|--help)
-      grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --laptop)                LAPTOP=1 ;;
+    --nvidia)                NVIDIA=yes ;;
+    --no-nvidia)             NVIDIA=no ;;
+    -h|--help)               grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -30,7 +38,7 @@ log()  { printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m!!\033[0m  %s\n' "$*" >&2; }
 
 # ---------------------------------------------------------------------------
-# Package installation (apt / pacman / dnf)
+# Package installation (apt / pacman / dnf / zypper)
 # ---------------------------------------------------------------------------
 detect_pm() {
   for pm in apt-get pacman dnf zypper; do
@@ -39,16 +47,20 @@ detect_pm() {
   echo "none"
 }
 
-install_packages() {
+# apt: never pull recommends (keeps GNOME/GDM out of a minimal base)
+apt_install() { sudo apt-get install -y --no-install-recommends "$@"; }
+
+install_base_packages() {
   local pm; pm="$(detect_pm)"
   log "Detected package manager: $pm"
   case "$pm" in
     apt-get)
       sudo apt-get update
-      sudo apt-get install -y \
+      apt_install \
         i3-wm polybar picom dunst rofi kitty feh xclip xdotool xinput \
-        x11-xserver-utils brightnessctl pulseaudio-utils \
-        network-manager network-manager-gnome flameshot ksnip trayer \
+        x11-xserver-utils xserver-xorg-core xserver-xorg-input-all \
+        xserver-xorg-video-all xinit \
+        brightnessctl pulseaudio-utils network-manager flameshot ksnip trayer \
         fontconfig fonts-jetbrains-mono curl unzip git \
         build-essential meson ninja-build cmake pkg-config \
         libev-dev libevdev-dev uthash-dev libconfig-dev libdbus-1-dev \
@@ -63,18 +75,19 @@ install_packages() {
     pacman)
       sudo pacman -Sy --needed --noconfirm \
         i3-wm polybar picom dunst rofi kitty feh xclip xdotool xorg-xinput \
-        xorg-xrdb brightnessctl pulseaudio networkmanager flameshot ksnip \
-        trayer ttf-jetbrains-mono-nerd fontconfig curl unzip git \
-        base-devel meson ninja cmake pkgconf libev libevdev uthash libconfig \
-        dbus pcre2 pixman libepoxy libxcb libxcb-util libxcb-render-util \
-        libxcb-image libxcb-glx libxcb-xfixes libxcb-shape libxcb-randr \
-        libxcb-composite libxcb-present libxcb-xinerama libxkbcommon
+        xorg-xrdb xorg-server xorg-xinit brightnessctl pulseaudio \
+        networkmanager flameshot ksnip trayer ttf-jetbrains-mono-nerd \
+        fontconfig curl unzip git base-devel meson ninja cmake pkgconf \
+        libev libevdev uthash libconfig dbus pcre2 pixman libepoxy libxcb \
+        libxcb-util libxcb-render-util libxcb-image libxcb-glx libxcb-xfixes \
+        libxcb-shape libxcb-randr libxcb-composite libxcb-present \
+        libxcb-xinerama libxkbcommon
       ;;
     dnf)
       sudo dnf install -y \
         i3 polybar picom dunst rofi kitty feh xclip xdotool xinput \
-        xorg-x11-xserver-utils brightnessctl pulseaudio-utils \
-        NetworkManager flameshot ksnip trayer \
+        xorg-x11-xserver-utils xorg-x11-server-Xorg xorg-x11-xinit \
+        brightnessctl pulseaudio-utils NetworkManager flameshot ksnip trayer \
         fontconfig jetbrains-mono-fonts-all curl unzip git \
         @development-tools meson ninja-build cmake pkgconf \
         libev-devel libevdev-devel uthash-devel libconfig-devel dbus-devel \
@@ -85,14 +98,60 @@ install_packages() {
     zypper)
       sudo zypper --non-interactive install \
         i3 polybar picom dunst rofi kitty feh xclip xdotool xinput \
-        xrdb brightnessctl pulseaudio-utils NetworkManager flameshot ksnip \
-        trayer fontconfig curl unzip git gcc make meson ninja cmake pkg-config \
-        libev-devel libevdev-devel uthash-devel libconfig-devel dbus-1-devel \
-        libpcre2-8-0 libpixman-1-0 libepoxy-0 \
-        libX11-devel libXext-devel libxcb-devel xcb-util-devel
+        xrdb xinit xorg-x11-server brightnessctl pulseaudio-utils \
+        NetworkManager flameshot ksnip trayer fontconfig curl unzip git \
+        gcc make meson ninja cmake pkg-config libev-devel libevdev-devel \
+        uthash-devel libconfig-devel dbus-1-devel libpcre2-8-0 libpixman-1-0 \
+        libepoxy-0 libX11-devel libXext-devel libxcb-devel xcb-util-devel
       ;;
     none) warn "No supported package manager found; install packages manually." ;;
   esac
+}
+
+install_laptop_packages() {
+  local pm; pm="$(detect_pm)"
+  log "Installing laptop extras (firmware, power, bluetooth, audio, GPU)"
+  case "$pm" in
+    apt-get)
+      apt_install linux-firmware bluez blueman tlp tlp-rdw powertop thermald \
+        lm-sensors pipewire pipewire-pulse wireplumber
+      sudo systemctl enable --now tlp 2>/dev/null || warn "could not enable tlp"
+      ;;
+    pacman)
+      sudo pacman -Sy --needed --noconfirm \
+        linux-firmware bluez bluez-utils blueman tlp powertop thermald \
+        lm_sensors pipewire pipewire-pulse wireplumber
+      sudo systemctl enable --now tlp 2>/dev/null || warn "could not enable tlp"
+      ;;
+    dnf)
+      sudo dnf install -y linux-firmware bluez blueman tlp powertop thermald \
+        lm_sensors pipewire pipewire-pulseaudio wireplumber
+      sudo systemctl enable --now tlp 2>/dev/null || warn "could not enable tlp"
+      ;;
+    zypper)
+      sudo zypper --non-interactive install linux-firmware bluez blueman tlp \
+        powertop thermald sensors pipewire pipewire-pulseaudio wireplumber
+      sudo systemctl enable --now tlp 2>/dev/null || warn "could not enable tlp"
+      ;;
+    none) warn "No supported package manager; skipping laptop extras." ;;
+  esac
+  install_nvidia
+}
+
+install_nvidia() {
+  # Respect an explicit choice; otherwise only prompt on an interactive terminal.
+  if [ "$NVIDIA" = no ]; then return; fi
+  if [ "$NVIDIA" != yes ] && [ ! -t 0 ]; then
+    log "NVIDIA: skipped (non-interactive). Re-run with --nvidia to install."
+    return
+  fi
+  if [ "$NVIDIA" != yes ]; then
+    read -r -p "Install NVIDIA proprietary driver (ubuntu-drivers autoinstall)? [y/N] " a
+    [[ "${a,,}" == y* ]] || { log "NVIDIA: skipped."; return; }
+  fi
+  log "Installing NVIDIA driver via ubuntu-drivers..."
+  apt_install ubuntu-drivers-common
+  sudo ubuntu-drivers autoinstall || warn "ubuntu-drivers autoinstall failed"
 }
 
 # ---------------------------------------------------------------------------
@@ -145,7 +204,10 @@ set_wallpaper() {
 # ---------------------------------------------------------------------------
 main() {
   log "Dotfiles repo: $REPO_DIR"
-  [ "$INSTALL_PKGS" -eq 1 ] && install_packages
+  if [ "$INSTALL_PKGS" -eq 1 ]; then
+    install_base_packages
+    [ "$LAPTOP" -eq 1 ] && install_laptop_packages
+  fi
   link_dotfiles
   set_wallpaper
   if [ -x "$REPO_DIR/scripts/install-nerd-font.sh" ]; then
@@ -158,8 +220,14 @@ main() {
   if command -v i3-msg >/dev/null 2>&1 && pgrep -x i3 >/dev/null 2>&1; then
     i3-msg reload >/dev/null 2>&1 && log "Reloaded i3." || true
   fi
-  log "Done. Log out/in (or reload i3) to see everything."
+  log "Done. Log out/in (or run startx) to see everything."
   if [ -d "$BACKUP_DIR" ]; then log "Previous configs backed up to: $BACKUP_DIR"; fi
+  cat <<'EOF'
+
+Next steps:
+  - Log in and run:  startx        (or pick the i3 session in a display manager)
+  - For the picom animations, build the fork:  ./scripts/install-picom-animations.sh
+EOF
 }
 
 main "$@"

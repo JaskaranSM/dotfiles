@@ -23,7 +23,13 @@ cd ~/dotfiles
 ```
 
 Add `--with-picom-animations` to also build the `pijulius/picom` fork (real
-window animations). If you run it separately later:
+window animations), and `--laptop` to pull in laptop hardware extras:
+
+```bash
+./install.sh --laptop --with-picom-animations
+```
+
+If you run the fork build separately later:
 
 ```bash
 ./scripts/install-picom-animations.sh
@@ -31,14 +37,18 @@ window animations). If you run it separately later:
 
 ### What the installer does
 
-1. Detects your package manager and installs: i3, polybar, picom, dunst, rofi,
-   kitty, feh, screenshot/volume/brightness helpers, fonts, and build tools.
-2. **Symlinks** every config into `$HOME` (existing files are backed up to
+1. Detects your package manager and installs (with **`--no-install-recommends`**
+   on apt, so a display manager/GNOME is never dragged in): i3, polybar, picom,
+   dunst, rofi, kitty, feh, an **X server** (`xserver-xorg` + `xinit`),
+   screenshot/volume/brightness helpers, fonts, and build tools.
+2. With `--laptop`: `linux-firmware`, Bluetooth, TLP/thermald/powertop, PipeWire,
+   GPU/touchpad drivers, and an optional NVIDIA driver.
+3. **Symlinks** every config into `$HOME` (existing files are backed up to
    `~/.dotfiles-backup-<timestamp>/`). You edit the repo, the system follows.
-3. Copies the wallpaper to `~/Pictures/` and applies it with `feh` **only if an
+4. Copies the wallpaper to `~/Pictures/` and applies it with `feh` **only if an
    X display is available** (safe on headless installs).
-4. Installs the **JetBrainsMono Nerd Font**.
-5. Reloads i3 if it is running.
+5. Installs the **JetBrainsMono Nerd Font**.
+6. Reloads i3 if it is running.
 
 ## 3. Start the desktop
 
@@ -88,6 +98,11 @@ xvfb-run -a --server-args="-screen 0 1920x1080x24" \
 
 ## 6. Gotchas (learned during testing)
 
+- **Keep it lean:** apt's *recommends* will happily drag GDM + GNOME onto a
+  minimal base (which then boots into a GNOME session you don't want), so the
+  installer uses `--no-install-recommends`.
+- **Display manager:** the base install ships no DM — start i3 with `startx`
+  (or install `lightdm`/`greetd` if you want a graphical login). Avoid GDM.
 - **Headless installs:** `feh` needs a display; the installer skips it and the
   wallpaper is applied by i3 on login.
 - **PATH for the picom fork:** `i3` must find `~/.local/bin/picom` before
