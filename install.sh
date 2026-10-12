@@ -135,10 +135,10 @@ set_wallpaper() {
   [ -e "$WALLPAPER_SRC" ] || { warn "wallpaper missing: $WALLPAPER_SRC"; return; }
   mkdir -p "$HOME/Pictures"
   cp -a "$WALLPAPER_SRC" "$WALLPAPER_DST"
-  if command -v feh >/dev/null 2>&1; then
+  if command -v feh >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
     feh --bg-scale "$WALLPAPER_DST" && log "Wallpaper set."
   else
-    warn "feh not installed; skipping wallpaper."
+    log "Wallpaper copied to $WALLPAPER_DST (feh will apply it from i3 on login)."
   fi
 }
 
