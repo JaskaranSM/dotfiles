@@ -21,4 +21,5 @@ echo "==> Refreshing font cache"
 fc-cache -f >/dev/null
 
 echo "==> Done. Installed families:"
-fc-list | grep -i "JetBrainsMono Nerd Font" | sed 's/:.*style/ style/' | sort -u | head
+fc-list | grep -i "JetBrainsMono Nerd Font" | sed 's/:.*style/ style/' | sort -u | head || true
+exit 0

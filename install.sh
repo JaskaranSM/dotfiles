@@ -159,7 +159,7 @@ main() {
     i3-msg reload >/dev/null 2>&1 && log "Reloaded i3." || true
   fi
   log "Done. Log out/in (or reload i3) to see everything."
-  [ -d "$BACKUP_DIR" ] && log "Previous configs backed up to: $BACKUP_DIR"
+  if [ -d "$BACKUP_DIR" ]; then log "Previous configs backed up to: $BACKUP_DIR"; fi
 }
 
 main "$@"
